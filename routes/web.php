@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\InsurancesController;
+use App\Http\Controllers\InvoicesController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ShoppingListController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +25,13 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('Index');
 });
+
+Route::resource('insurances', InsurancesController::class);
+Route::resource('invoices', InvoicesController::class);
+Route::resource('payment', PaymentController::class);
+Route::resource('transaction', TransactionController::class);
+Route::resource('subscription', SubscriptionController::class);
+Route::resource('shoppinglist', ShoppingListController::class);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoices;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class InvoicesController extends Controller
 {
@@ -12,7 +13,7 @@ class InvoicesController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('Invoices/Index');
     }
 
     /**

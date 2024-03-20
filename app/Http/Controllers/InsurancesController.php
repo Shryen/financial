@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Insurances;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class InsurancesController extends Controller
 {
@@ -12,7 +13,7 @@ class InsurancesController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('Insurances/Index');
     }
 
     /**

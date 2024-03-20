@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ShoppingList;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ShoppingListController extends Controller
 {
@@ -12,7 +13,7 @@ class ShoppingListController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('ShoppingList/Index');
     }
 
     /**
