@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Insurances;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 
 class InsurancesController extends Controller
@@ -13,7 +14,7 @@ class InsurancesController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Insurances/Index');
+        return Inertia::render('Insurances/Index', ['insurances' => Insurances::all()]);
     }
 
     /**
@@ -21,7 +22,7 @@ class InsurancesController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Insurances/Create', ['insurances' => Insurances::all()]);
     }
 
     /**
@@ -29,9 +30,23 @@ class InsurancesController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        // Validate each item in the array
+        foreach ($request->all() as $data) {
+            $existing = Insurances::where('name', $data['name'])->first();
+            if (!$existing) {
+                $attr = Validator::make($data, [
+                    'name' => 'required|max:255',
+                    'price' => 'required'
+                ])->validate();
 
+                // Create a new Insurance instance for each item
+                Insurances::create($attr);
+            }
+        }
+
+        // Redirect or respond as needed
+        return redirect()->route('insurances.index')->with('success', 'Insurance(s) created successfully!');
+    }
     /**
      * Display the specified resource.
      */
@@ -39,7 +54,7 @@ class InsurancesController extends Controller
     {
         //
     }
-
+    // 
     /**
      * Show the form for editing the specified resource.
      */
@@ -51,11 +66,17 @@ class InsurancesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Insurances $insurances)
+    public function update(Request $request, $id)
     {
-        //
-    }
+        $data = $request->validate([
+            'name' => 'required|max:255',
+        ]);
 
+        $insurance = Insurances::findOrFail($id);
+        $insurance->update($data);
+
+        return redirect()->route('insurances.index')->with('success', 'Insurance updated successfully!');
+    }
     /**
      * Remove the specified resource from storage.
      */
