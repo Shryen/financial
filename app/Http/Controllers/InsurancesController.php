@@ -70,6 +70,7 @@ class InsurancesController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|max:255',
+            'price' => 'required'
         ]);
 
         $insurance = Insurances::findOrFail($id);

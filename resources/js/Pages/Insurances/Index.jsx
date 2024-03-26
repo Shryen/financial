@@ -1,83 +1,87 @@
 import Layout from "@/Layouts/Layout";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Title from "@/Components/Title";
 import Button from "@/Components/Button";
 import { router } from "@inertiajs/react";
 import Swal from "sweetalert2";
+import useAdd from "@/Hooks/useAdd";
+import useCancelUpdate from "@/Hooks/useCancelUpdate";
 
 export default function Index({ insurances }) {
     const csrfToken = document
         .querySelector('meta[name="csrf-token"]')
         .getAttribute("content");
     const [isVisibleAdd, setIsVisibleAdd] = useState(false);
-    const [fake, setFake] = useState(insurances);
+    const [insurance, setInsurance] = useState(insurances);
     const [isEdit, setIsEdit] = useState(false);
     const [edited, setEdited] = useState(false);
+    const [values, setValues] = useState({
+        name: "",
+        price: 0,
+    });
+
+    const form = useRef(null);
 
     useEffect(() => {
-        setFake(insurances);
+        setInsurance(insurances);
     }, [insurances]);
 
-    const total = fake.reduce((acc, item) => acc + item.price, 0);
-    function add(e) {
-        if (e.key === "Enter") {
-            const text = e.target.value;
-            const price = parseInt(e.target.nextSibling.value);
-            const newItem = {
-                id: fake.length + 1,
-                isEdit: false,
-                name: text,
-                price: price,
-            };
-            setFake((prevFake) => [...prevFake, newItem]);
-            setIsVisibleAdd(false);
-        } else if (e.key === "Escape") {
-            setIsVisibleAdd(false);
-            setIsEdit(false);
-        }
-    }
+    const total = insurance.reduce((acc, item) => acc + item.price, 0);
 
-    function cancelUpdate(id) {
-        const updated = fake.map((f) => {
-            if (f.id === id) {
-                f.isEdit = false;
-            }
-            return f;
-        });
-        setFake(updated);
-    }
+    const add = useAdd({
+        array: insurance,
+        setArray: setInsurance,
+        setIsVisibleAdd: setIsVisibleAdd,
+        setIsEdit: setIsEdit,
+    });
+
+    const cancel = useCancelUpdate();
 
     function markAsEdit(id) {
-        const updated = fake.map((f) => {
+        const updated = insurance.map((f) => {
             if (f.id === id) {
                 f.isEdit = true;
             }
             return f;
         });
-        setFake(updated);
+        setInsurance(updated);
+    }
+
+    function handleChange(e) {
+        const key = e.target.id;
+        const value = e.target.value;
+        setValues({
+            ...values,
+            [key]: value,
+        });
     }
 
     function update(e, id) {
-        const text = e.target.value;
-        const updated = fake.map((f) => {
+        e.preventDefault();
+        const text = values.name;
+        const price = values.price;
+        const updated = insurance.map((f) => {
             if (f.id === id) {
                 if (e.target.value.trim().length === 0) {
                     f.isEdit = false;
                     return f;
                 }
-                f.name = text;
+                f.name = values.name;
+                f.price = values.price;
+                console.log(f.price);
                 f.isEdit = false;
             }
             setEdited(true);
             return f;
         });
-        setFake(updated);
-        router.put(`/insurances/${id}`, { name: text });
+        setInsurance(updated);
+        console.log(text, price);
+        router.put(`/insurances/${id}`, { name: text, price: price });
     }
 
     function sendData(e) {
         e.preventDefault();
-        const dataToSend = fake.map((f) => {
+        const dataToSend = insurance.map((f) => {
             return {
                 name: f.name,
                 price: f.price,
@@ -121,9 +125,9 @@ export default function Index({ insurances }) {
     return (
         <Layout>
             <Title>Biztositások</Title>
-            {fake.length !== 0 ? (
+            {insurance.length !== 0 ? (
                 <div>
-                    {fake.map((f) => (
+                    {insurance.map((f) => (
                         <div key={f.id}>
                             {!f.isEdit ? (
                                 <div
@@ -135,20 +139,48 @@ export default function Index({ insurances }) {
                                     <p>${f.price}</p>
                                 </div>
                             ) : (
-                                <input
-                                    type="text"
-                                    name="name"
-                                    onBlur={(event) => update(event, f.id)}
-                                    onKeyDown={(event) => {
-                                        if (event.key === "Enter") {
-                                            update(event, f.id);
-                                        } else if (event.key === "Escape") {
-                                            cancelUpdate(f.id);
-                                        }
-                                    }}
-                                    defaultValue={f.name}
-                                    autoFocus
-                                />
+                                <form className="flex gap-2 mb-2">
+                                    <input
+                                        className="w-2/3 focus:ring-indigo-500 focus:border-indigo-500 block sm:text-sm border-gray-300 rounded-sm"
+                                        type="text"
+                                        name="name"
+                                        id="name"
+                                        defaultValue={f.name}
+                                        onKeyDown={(event) => {
+                                            if (event.key === "Escape") {
+                                                cancel(
+                                                    f.id,
+                                                    insurance,
+                                                    setInsurance
+                                                );
+                                            } else if (event.key === "Enter") {
+                                                update(event, f.id);
+                                            }
+                                        }}
+                                        onChange={handleChange}
+                                        autoFocus
+                                    />
+                                    <input
+                                        className="w-1/3 text-right focus:ring-indigo-500 focus:border-indigo-500 block sm:text-sm border-gray-300 rounded-sm"
+                                        type="text"
+                                        name="price"
+                                        id={`price`}
+                                        onKeyDown={(event) => {
+                                            if (event.key === "Escape") {
+                                                cancel(
+                                                    f.id,
+                                                    insurance,
+                                                    setInsurance
+                                                );
+                                            }
+                                            if (event.key === "Enter") {
+                                                update(event, f.id);
+                                            }
+                                        }}
+                                        defaultValue={f.price}
+                                        onChange={handleChange}
+                                    />
+                                </form>
                             )}
                         </div>
                     ))}
@@ -175,7 +207,7 @@ export default function Index({ insurances }) {
                 <Button onClick={() => setIsVisibleAdd(true)}>Hozzáad</Button>
                 {!edited ? (
                     <form onSubmit={sendData}>
-                        {fake.map((f) => (
+                        {insurance.map((f) => (
                             <div key={f.id}>
                                 <input
                                     type="hidden"
@@ -192,8 +224,8 @@ export default function Index({ insurances }) {
                         <Button type="submit">Mentés</Button>
                     </form>
                 ) : (
-                    <form method="PUT" onSubmit={update}>
-                        {fake.map((f) => (
+                    <form method="PUT">
+                        {insurance.map((f) => (
                             <div key={f.id}>
                                 <input type="hidden" id={f.id} value={f.id} />
                                 <input
@@ -208,7 +240,7 @@ export default function Index({ insurances }) {
                                 />
                             </div>
                         ))}
-                        <Button type="submit">Frissités</Button>
+                        <Button>Frissités</Button>
                     </form>
                 )}
             </div>

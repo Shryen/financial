@@ -13,7 +13,7 @@ class InvoicesController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Invoices/Index');
+        return Inertia::render('Invoices/Index', ['invoices' => Invoices::all()]);
     }
 
     /**
