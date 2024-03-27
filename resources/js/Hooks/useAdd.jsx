@@ -1,11 +1,9 @@
-import React from "react";
-import { useState } from "react";
-
 export default function useAdd({
     array,
     setArray,
     setIsVisibleAdd,
     setIsEdit,
+    setEdited,
 }) {
     const add = (e) => {
         if (e.key === "Enter") {
@@ -18,6 +16,8 @@ export default function useAdd({
                 price: price,
             };
             setArray((prevArray) => [...prevArray, newItem]); // Add newItem to the existing array
+            setArray((prevArray) => [...prevArray], (newItem.isEdit = false));
+            setEdited(true);
             setIsVisibleAdd(false);
         } else if (e.key === "Escape") {
             setIsVisibleAdd(false);

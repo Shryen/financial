@@ -50,17 +50,19 @@ class InsurancesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Insurances $insurances)
+    public function show(Insurances $insurances, $id)
     {
-        //
+        $insurance = Insurances::findOrFail($id);
+        return Inertia::render('Insurances/Show', ['insurances' => $insurance]);
     }
     // 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Insurances $insurances)
+    public function edit(Insurances $insurances, $id)
     {
-        //
+        $insurance = Insurances::findOrFail($id);
+        return Inertia::render('Insurances/Edit', ['insurances' => $insurance]);
     }
 
     /**
@@ -81,8 +83,10 @@ class InsurancesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Insurances $insurances)
+    public function destroy(Insurances $insurances, $id)
     {
-        //
+        $insurance = Insurances::findOrFail($id);
+        $insurance->delete();
+        return redirect()->route('insurances.index')->with('success', 'Insurance deleted successfully!');
     }
 }

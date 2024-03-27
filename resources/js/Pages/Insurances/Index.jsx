@@ -6,7 +6,10 @@ import { router } from "@inertiajs/react";
 import Swal from "sweetalert2";
 import useAdd from "@/Hooks/useAdd";
 import useCancelUpdate from "@/Hooks/useCancelUpdate";
-
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Input from "@/Components/Input";
+import Form from "@/Components/Form";
 export default function Index({ insurances }) {
     const csrfToken = document
         .querySelector('meta[name="csrf-token"]')
@@ -15,13 +18,6 @@ export default function Index({ insurances }) {
     const [insurance, setInsurance] = useState(insurances);
     const [isEdit, setIsEdit] = useState(false);
     const [edited, setEdited] = useState(false);
-    const [values, setValues] = useState({
-        name: "",
-        price: 0,
-    });
-
-    const form = useRef(null);
-
     useEffect(() => {
         setInsurance(insurances);
     }, [insurances]);
@@ -33,50 +29,36 @@ export default function Index({ insurances }) {
         setArray: setInsurance,
         setIsVisibleAdd: setIsVisibleAdd,
         setIsEdit: setIsEdit,
+        setEdited: setEdited,
     });
 
     const cancel = useCancelUpdate();
 
     function markAsEdit(id) {
-        const updated = insurance.map((f) => {
-            if (f.id === id) {
-                f.isEdit = true;
-            }
-            return f;
-        });
-        setInsurance(updated);
+        window.location.href = `/insurances/${id}/edit`;
     }
 
-    function handleChange(e) {
-        const key = e.target.id;
-        const value = e.target.value;
-        setValues({
-            ...values,
-            [key]: value,
-        });
-    }
-
-    function update(e, id) {
-        e.preventDefault();
-        const text = values.name;
-        const price = values.price;
-        const updated = insurance.map((f) => {
-            if (f.id === id) {
-                if (e.target.value.trim().length === 0) {
-                    f.isEdit = false;
-                    return f;
+    function deleteRow(id) {
+        Swal.fire({
+            title: "Biztos, hogy törli a kiválasztott biztositásokat?",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Mégsem",
+            confirmButtonText: "Igen, törlöm",
+        })
+            .then((result) => {
+                if (result.isConfirmed) {
+                    router.delete(`/insurances/${id}`);
                 }
-                f.name = values.name;
-                f.price = values.price;
-                console.log(f.price);
-                f.isEdit = false;
-            }
-            setEdited(true);
-            return f;
-        });
-        setInsurance(updated);
-        console.log(text, price);
-        router.put(`/insurances/${id}`, { name: text, price: price });
+            })
+            .catch((error) => {
+                Swal.fire({
+                    title: "Hiba",
+                    icon: "error",
+                    confirmButtonText: "Ok",
+                    text: error,
+                });
+            });
     }
 
     function sendData(e) {
@@ -108,18 +90,10 @@ export default function Index({ insurances }) {
                 title: "Hiba",
                 icon: "error",
                 confirmButtonText: "Ok",
+                text: errors,
             })
         );
-        // fetch("/insurances", {
-        //     method: "POST",
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //         "X-CSRF-Token": csrfToken,
-        //     },
-        //     body: JSON.stringify(dataToSend),
-        // })
-        //     .then(() => console.log("Data sent succesfully", dataToSend))
-        //     .catch((error) => console.log("Error: ", error));
+        setEdited(false);
     }
 
     return (
@@ -127,61 +101,49 @@ export default function Index({ insurances }) {
             <Title>Biztositások</Title>
             {insurance.length !== 0 ? (
                 <div>
+                    <div
+                        className="grid grid-cols-4 py-2 text-gray-700"
+                        style={{ gridTemplateColumns: "1fr 1fr auto auto" }}
+                    >
+                        <p className="font-bold uppercase text-lg">
+                            Biztositás
+                        </p>
+                        <p className="font-bold uppercase text-lg px-2">Ár</p>
+                        <p className="px-4"></p>
+                        <p className="px-4"></p>
+                    </div>
                     {insurance.map((f) => (
                         <div key={f.id}>
-                            {!f.isEdit ? (
-                                <div
-                                    className="flex justify-between"
-                                    onDoubleClick={() => markAsEdit(f.id)}
-                                    key={f.id}
+                            <div
+                                className="grid grid-cols-4 py-2 text-gray-700"
+                                onDoubleClick={() => markAsEdit(f.id)}
+                                key={f.id}
+                                style={{
+                                    gridTemplateColumns: "1fr 1fr auto auto",
+                                }}
+                            >
+                                <p
+                                    className="cursor-pointer hover:font-bold transition-all duration-300"
+                                    onClick={() => {
+                                        window.location.href = `/insurances/${f.id}`;
+                                    }}
                                 >
-                                    <p>{f.name}</p>
-                                    <p>${f.price}</p>
+                                    {f.name}
+                                </p>
+                                <p>${f.price}</p>
+                                <div className="flex justify-end w-full">
+                                    <EditIcon
+                                        onClick={() => markAsEdit(f.id)}
+                                        className="text-gray-400 hover:text-gray-800 cursor-pointer transition-all duration-300"
+                                    />
                                 </div>
-                            ) : (
-                                <form className="flex gap-2 mb-2">
-                                    <input
-                                        className="w-2/3 focus:ring-indigo-500 focus:border-indigo-500 block sm:text-sm border-gray-300 rounded-sm"
-                                        type="text"
-                                        name="name"
-                                        id="name"
-                                        defaultValue={f.name}
-                                        onKeyDown={(event) => {
-                                            if (event.key === "Escape") {
-                                                cancel(
-                                                    f.id,
-                                                    insurance,
-                                                    setInsurance
-                                                );
-                                            } else if (event.key === "Enter") {
-                                                update(event, f.id);
-                                            }
-                                        }}
-                                        onChange={handleChange}
-                                        autoFocus
+                                <div className="flex justify-end w-full">
+                                    <DeleteIcon
+                                        onClick={() => deleteRow(f.id)}
+                                        className="text-gray-300 hover:text-red-800 cursor-pointer transition-all duration-300"
                                     />
-                                    <input
-                                        className="w-1/3 text-right focus:ring-indigo-500 focus:border-indigo-500 block sm:text-sm border-gray-300 rounded-sm"
-                                        type="text"
-                                        name="price"
-                                        id={`price`}
-                                        onKeyDown={(event) => {
-                                            if (event.key === "Escape") {
-                                                cancel(
-                                                    f.id,
-                                                    insurance,
-                                                    setInsurance
-                                                );
-                                            }
-                                            if (event.key === "Enter") {
-                                                update(event, f.id);
-                                            }
-                                        }}
-                                        defaultValue={f.price}
-                                        onChange={handleChange}
-                                    />
-                                </form>
-                            )}
+                                </div>
+                            </div>
                         </div>
                     ))}
                     {total && (
@@ -198,14 +160,18 @@ export default function Index({ insurances }) {
             )}
 
             {isVisibleAdd && (
-                <form>
-                    <input type="text" onKeyDown={add} autoFocus />
-                    <input type="number" />
-                </form>
+                <Form className="flex gap-2">
+                    <Input
+                        type="text"
+                        onKeyDown={add}
+                        autoFocus
+                        placeholder="Biztositás"
+                    />
+                    <Input type="number" placeholder="Ár" onKeyDown={add} />
+                </Form>
             )}
             <div className="flex justify-between mt-5">
-                <Button onClick={() => setIsVisibleAdd(true)}>Hozzáad</Button>
-                {!edited ? (
+                {edited ? (
                     <form onSubmit={sendData}>
                         {insurance.map((f) => (
                             <div key={f.id}>
@@ -224,24 +190,9 @@ export default function Index({ insurances }) {
                         <Button type="submit">Mentés</Button>
                     </form>
                 ) : (
-                    <form method="PUT">
-                        {insurance.map((f) => (
-                            <div key={f.id}>
-                                <input type="hidden" id={f.id} value={f.id} />
-                                <input
-                                    type="hidden"
-                                    name="name"
-                                    value={f.name}
-                                />
-                                <input
-                                    type="hidden"
-                                    name="price"
-                                    value={f.price}
-                                />
-                            </div>
-                        ))}
-                        <Button>Frissités</Button>
-                    </form>
+                    <Button onClick={() => setIsVisibleAdd(true)}>
+                        Hozzáad
+                    </Button>
                 )}
             </div>
         </Layout>
