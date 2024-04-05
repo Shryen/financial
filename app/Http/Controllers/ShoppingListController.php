@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ShoppingList;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 
 class ShoppingListController extends Controller
@@ -13,7 +14,10 @@ class ShoppingListController extends Controller
      */
     public function index()
     {
-        return Inertia::render('ShoppingList/Index');
+        $shop = ShoppingList::all();
+        return Inertia::render('ShoppingList/Index', [
+            'shops' => $shop
+        ]);
     }
 
     /**
@@ -29,7 +33,18 @@ class ShoppingListController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        foreach ($request->all() as $data) {
+            $existing = ShoppingList::where('name', $data['name'])->first();
+            if (!$existing) {
+                $attr = Validator::make($data, [
+                    'name' => 'required|max:255',
+                    'price' => 'required'
+                ])->validate();
+
+                // Create a new Insurance instance for each item
+                ShoppingList::create($attr);
+            }
+        }
     }
 
     /**
