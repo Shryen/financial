@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 
 class TransactionController extends Controller
@@ -13,7 +14,10 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Transaction/Index');
+        $transaction = Transaction::all();
+        return Inertia::render('Transaction/Index', [
+            'transactions' => $transaction
+        ]);
     }
 
     /**
@@ -29,7 +33,16 @@ class TransactionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        foreach ($request->all() as $data) {
+            $existing = Transaction::where('name', $data['name'])->first();
+            if (!$existing) {
+                $attr = Validator::make($data, [
+                    'name' => 'required|max:255',
+                    'price' => 'required'
+                ])->validate();
+                Transaction::create($attr);
+            }
+        }
     }
 
     /**

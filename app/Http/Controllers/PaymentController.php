@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 
 class PaymentController extends Controller
@@ -13,7 +14,9 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Payments/Index');
+        return Inertia::render('Payments/Index', [
+            'payments' => Payment::all()
+        ]);
     }
 
     /**
@@ -29,7 +32,16 @@ class PaymentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        foreach ($request->all() as $data) {
+            $existing = Payment::where('name', $data['name'])->first();
+            if (!$existing) {
+                $attr = Validator::make($data, [
+                    'name' => 'required|max:255',
+                    'price' => 'required'
+                ])->validate();
+                Payment::create($attr);
+            }
+        }
     }
 
     /**

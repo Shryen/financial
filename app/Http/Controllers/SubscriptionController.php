@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Subscription;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 
 class SubscriptionController extends Controller
@@ -13,7 +14,9 @@ class SubscriptionController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Subscriptions/Index');
+        return Inertia::render('Subscriptions/Index', [
+            'subscriptions' => Subscription::all()
+        ]);
     }
 
     /**
@@ -29,7 +32,16 @@ class SubscriptionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        foreach ($request->all() as $data) {
+            $existing = Subscription::where('name', $data['name'])->first();
+            if (!$existing) {
+                $attr = Validator::make($data, [
+                    'name' => 'required|max:255',
+                    'price' => 'required'
+                ])->validate();
+                Subscription::create($attr);
+            }
+        }
     }
 
     /**
