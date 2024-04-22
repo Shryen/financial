@@ -50,9 +50,14 @@ class ShoppingListController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShoppingList $shoppingList)
+    public function show(ShoppingList $shoppingList, $id)
     {
-        //
+        $list = ShoppingList::findOrFail($id);
+        $items = $list->items;
+        return Inertia::render('ShoppingList/Show', [
+            'list' => $list,
+            'items' => $items
+        ]);
     }
 
     /**

@@ -5,13 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ShoppingList extends Model
+class Items extends Model
 {
     use HasFactory;
+
     protected $guarded = [];
 
-    public function items()
+    public function ShoppingList()
     {
-        return $this->hasMany(Items::class);
+        return $this->belongsTo(ShoppingList::class);
     }
 }

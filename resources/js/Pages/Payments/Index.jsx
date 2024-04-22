@@ -22,7 +22,7 @@ export default function Index({ payments }) {
         setPayment(payments);
     }, [payments]);
 
-    const total = payment.reduce((acc, item) => acc + item.price, 0);
+    const total = payment.reduce((a, b) => a + b.price, 0);
 
     const add = useAdd({
         array: payment,

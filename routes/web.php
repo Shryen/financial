@@ -5,6 +5,7 @@ use App\Http\Controllers\InvoicesController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ShoppingListController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\TotalController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -31,7 +32,11 @@ Route::resource('invoices', InvoicesController::class);
 Route::resource('payment', PaymentController::class);
 Route::resource('transaction', TransactionController::class);
 Route::resource('subscription', SubscriptionController::class);
+
+Route::get('shops/{id}', [ShoppingListController::class, 'show'])->name('shoppinglist.show');
 Route::resource('shoppinglist', ShoppingListController::class);
+
+Route::get('/calculate-total', [TotalController::class, 'calculateTotal']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
