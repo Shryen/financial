@@ -10,6 +10,8 @@ use App\Models\Subscription;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 
+header("Access-Control-Allow-Origin: *");
+
 class TotalController extends Controller
 {
     public function calculateTotal()

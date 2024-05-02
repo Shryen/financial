@@ -48,6 +48,15 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('login');
+    }
+
+    public function getUser(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return json_encode(['status' => 'No user']);
+        }
+        return json_encode(['status' => true, 'user' => $user]);
     }
 }

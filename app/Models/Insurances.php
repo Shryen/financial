@@ -10,4 +10,9 @@ class Insurances extends Model
     use HasFactory;
 
     protected $fillable = ['name', 'price'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

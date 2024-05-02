@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\InsurancesController;
 use App\Http\Controllers\InvoicesController;
 use App\Http\Controllers\PaymentController;
@@ -32,16 +34,25 @@ Route::resource('invoices', InvoicesController::class);
 Route::resource('payment', PaymentController::class);
 Route::resource('transaction', TransactionController::class);
 Route::resource('subscription', SubscriptionController::class);
+Route::get('/expenses', [ExpensesController::class, 'index'])->name('expenses')->middleware('auth');
+Route::get('/getExpenses', [ExpensesController::class, 'getExpenses']);
 
 Route::get('shops/{id}', [ShoppingListController::class, 'show'])->name('shoppinglist.show');
 Route::resource('shoppinglist', ShoppingListController::class);
 
 Route::get('/calculate-total', [TotalController::class, 'calculateTotal']);
+Route::get('/auth-user', [AuthenticatedSessionController::class, 'checkAuth']);
+Route::get('/get-user', [AuthenticatedSessionController::class, 'getUser']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware('auth')->post('/logout', function () {
+    auth()->logout();
+    return redirect('/');
 });
 
 require __DIR__ . '/auth.php';

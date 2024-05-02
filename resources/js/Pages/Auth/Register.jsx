@@ -1,10 +1,8 @@
 import { useEffect } from "react";
-import GuestLayout from "@/Layouts/Layout";
-import InputError from "@/Components/InputError";
-import InputLabel from "@/Components/InputLabel";
-import PrimaryButton from "@/Components/PrimaryButton";
-import TextInput from "@/Components/TextInput";
-import { Head, Link, useForm } from "@inertiajs/react";
+import Button from "@/Components/Button";
+import Input from "@/Components/Input";
+import { Link, useForm } from "@inertiajs/react";
+import Layout from "@/Layouts/Layout";
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -27,14 +25,11 @@ export default function Register() {
     };
 
     return (
-        <GuestLayout>
-            <Head title="Register" />
-
+        <Layout>
             <form onSubmit={submit}>
                 <div>
-                    <InputLabel htmlFor="name" value="Name" />
-
-                    <TextInput
+                    <label htmlFor="name">Name</label>
+                    <Input
                         id="name"
                         name="name"
                         value={data.name}
@@ -44,14 +39,11 @@ export default function Register() {
                         onChange={(e) => setData("name", e.target.value)}
                         required
                     />
-
-                    <InputError message={errors.name} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="email" value="Email" />
-
-                    <TextInput
+                    <label htmlFor="email"> Email </label>
+                    <Input
                         id="email"
                         type="email"
                         name="email"
@@ -61,14 +53,11 @@ export default function Register() {
                         onChange={(e) => setData("email", e.target.value)}
                         required
                     />
-
-                    <InputError message={errors.email} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
-
-                    <TextInput
+                    <label htmlFor="password"> Password </label>
+                    <Input
                         id="password"
                         type="password"
                         name="password"
@@ -78,17 +67,13 @@ export default function Register() {
                         onChange={(e) => setData("password", e.target.value)}
                         required
                     />
-
-                    <InputError message={errors.password} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel
-                        htmlFor="password_confirmation"
-                        value="Confirm Password"
-                    />
-
-                    <TextInput
+                    <label htmlFor="password_confirmation">
+                        Confirm Password
+                    </label>
+                    <Input
                         id="password_confirmation"
                         type="password"
                         name="password_confirmation"
@@ -100,11 +85,6 @@ export default function Register() {
                         }
                         required
                     />
-
-                    <InputError
-                        message={errors.password_confirmation}
-                        className="mt-2"
-                    />
                 </div>
 
                 <div className="flex items-center justify-end mt-4">
@@ -115,11 +95,11 @@ export default function Register() {
                         Already registered?
                     </Link>
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
+                    <Button className="ms-4" disabled={processing}>
                         Register
-                    </PrimaryButton>
+                    </Button>
                 </div>
             </form>
-        </GuestLayout>
+        </Layout>
     );
 }
